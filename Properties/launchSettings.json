@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ReadingFiles": {
+      "commandName": "Project",
+      "commandLineArgs": "file1.txt file2.txt file3.txt",
+      "workingDirectory": "D:\\Downloads\\"
+    }
+  }
+}
