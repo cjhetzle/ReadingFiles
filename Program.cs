@@ -70,27 +70,30 @@ class ReadingFiles
     static void Main(String[] args)
     {
         Console.WriteLine(args[0]);
-        Console.ReadLine();
+
+        Char delim = ' ';
 
         ConcurrentDictionary<String, int> words = new ConcurrentDictionary<string, int>();
         String fileName1 = args[0], fileName2 = args[1], fileName3 = args[2];
-        Task readFile1 = Task.Run(() => AsyncReadFileWords(fileName1, words));
-        Task readFile2 = Task.Run(() => AsyncReadFileWords(fileName2, words));
-        Task readFile3 = Task.Run(() => AsyncReadFileWords(fileName3, words));
+        Task readFile1 = Task.Run(() => AsyncReadFileWords(fileName1, words, delim));
+        Task readFile2 = Task.Run(() => AsyncReadFileWords(fileName2, words, delim));
+        Task readFile3 = Task.Run(() => AsyncReadFileWords(fileName3, words, delim));
 
         Task.WaitAll(readFile1, readFile2, readFile3);
 
-        Dictionary<String, int> wordsOrdered;
-        wordsOrdered = words.OrderBy(x => x.Key.ToLower()).ToDictionary(x => x.Key, x => x.Value);
-
-
-        foreach (String key in wordsOrdered.Keys)
+        Dictionary<String, int> wordsAlpha;
+        wordsAlpha = words.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        
+        foreach (KeyValuePair<String, int> pair in wordsAlpha)
         {
-            Console.Write(key  + '\n');
+            Console.Write(pair.Key + "-> " + pair.Value + '\n');
         }
+        wordsAlpha = words.OrderBy(x => x.Key.ToLower()).ToDictionary(x => x.Key, x => x.Value);
 
-        WriteWordsToFile("file4.txt", wordsOrdered.Keys.ToList());
+        WriteWordsToFile("file4.txt", wordsAlpha.Keys.ToList());
+        Console.WriteLine("The file F4 has been created.");
 
+        Console.WriteLine("-------");
         Console.ReadLine();
     }
 
@@ -104,7 +107,7 @@ class ReadingFiles
         }
     }
 
-    static void AsyncReadFileWords(String filename, ConcurrentDictionary<String, int> words)
+    static void AsyncReadFileWords(String filename, ConcurrentDictionary<String, int> words, Char delim)
     {
         if (!File.Exists(filename))
             return;
@@ -115,7 +118,7 @@ class ReadingFiles
             // sep by "space" for now
             while (!sr.EndOfStream)
             {
-                String word = GetNextWord(sr, ' ');
+                String word = GetNextWord(sr, delim);
 
                 if (word != String.Empty)
                 {
